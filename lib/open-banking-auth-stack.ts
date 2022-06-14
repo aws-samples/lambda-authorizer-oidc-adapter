@@ -1,16 +1,16 @@
 require('dotenv').config()
-import * as apigateway from "@aws-cdk/aws-apigateway";
-import * as lambda from "@aws-cdk/aws-lambda";
-import * as ec2 from "@aws-cdk/aws-ec2";
-import * as ecs from "@aws-cdk/aws-ecs";
-import * as ecr from "@aws-cdk/aws-ecr";
-import * as ecs_patterns from "@aws-cdk/aws-ecs-patterns";
-import * as acm from "@aws-cdk/aws-certificatemanager";
-import * as alb from "@aws-cdk/aws-elasticloadbalancingv2";
-import * as route53 from '@aws-cdk/aws-route53';
-import { Role, ServicePrincipal, PolicyStatement } from '@aws-cdk/aws-iam';
-import * as cdk from '@aws-cdk/core';
-import { Duration, CustomResource } from "@aws-cdk/core";
+import { aws_apigateway as apigateway } from 'aws-cdk-lib';
+import { aws_lambda as lambda } from 'aws-cdk-lib';
+import { aws_ec2 as ec2 } from 'aws-cdk-lib';
+import { aws_ecs as ecs } from 'aws-cdk-lib';
+import { aws_ecr as ecr } from 'aws-cdk-lib';
+import { aws_ecs_patterns as ecs_patterns } from 'aws-cdk-lib';
+import { aws_certificatemanager as acm } from 'aws-cdk-lib';
+import { aws_elasticloadbalancingv2 as alb } from 'aws-cdk-lib';
+import { aws_route53 as route53 } from 'aws-cdk-lib';
+import { Role, ServicePrincipal, PolicyStatement } from 'aws-cdk-lib/aws-iam';
+import * as cdk from 'aws-cdk-lib';
+import { Duration, CustomResource } from 'aws-cdk-lib';
 
 export class OpenBankingAuthStack extends cdk.Stack {
   constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {

@@ -1,5 +1,5 @@
-import { expect as expectCDK, haveResource } from '@aws-cdk/assert';
-import * as cdk from '@aws-cdk/core';
+import { Match, Template } from 'aws-cdk-lib/assertions';
+import * as cdk from 'aws-cdk-lib';
 import * as OpenBankingAuth from '../lib/open-banking-auth-stack';
 
 test('SQS Queue Created', () => {
@@ -7,9 +7,9 @@ test('SQS Queue Created', () => {
     // WHEN
     const stack = new OpenBankingAuth.OpenBankingAuthStack(app, 'MyTestStack');
     // THEN
-    expectCDK(stack).to(haveResource("AWS::SQS::Queue",{
+    Template.fromStack(stack).hasResource("AWS::SQS::Queue",{
       VisibilityTimeout: 300
-    }));
+    });
 });
 
 test('SNS Topic Created', () => {
@@ -17,5 +17,5 @@ test('SNS Topic Created', () => {
   // WHEN
   const stack = new OpenBankingAuth.OpenBankingAuthStack(app, 'MyTestStack');
   // THEN
-  expectCDK(stack).to(haveResource("AWS::SNS::Topic"));
+  Template.fromStack(stack).hasResource("AWS::SNS::Topic");
 });
