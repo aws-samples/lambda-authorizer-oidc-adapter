@@ -71,6 +71,7 @@ async function verifyAccessToken(accessToken) {
 
     const key = await client.getSigningKey(kid);
     const signingKey = key.getPublicKey();
+    console.log('CHAVE PUBLICA ', signingKey)
     const decoded = jwt.verify(accessToken, signingKey);
     return decoded
 };
@@ -118,4 +119,3 @@ exports.handler = async (event, context) => {
     console.log('IAM Policy', JSON.stringify(iamPolicy));
     return iamPolicy;
 };
-

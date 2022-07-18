@@ -16,44 +16,6 @@ export class OpenBankingAuthStack extends cdk.Stack {
   constructor(scope: cdk.App, id: string, props?: cdk.StackProps) {
     super(scope, id, props);
 
-
-    // ------ OPENID CONNECT PROVIDER CONFIGURATION 
-
-    // VPC Definition
-    const vpc = new ec2.Vpc(this, "MyVpc", {
-      maxAzs: 3 // Default is all AZs in region
-    });
-
-    const cluster = new ecs.Cluster(this, "MyCluster", {
-      vpc: vpc
-    });
-
-    // Fargate Task Definition
-    // Create a load-balanced Fargate service and make it public
-    const repo = ecr.Repository.fromRepositoryArn(this, 'node-oidc-provider', <string>process.env.ECR_REPOSITORY_ARN)
-    const oidc_service = new ecs_patterns.ApplicationLoadBalancedFargateService(this, "NodeOIDCService", {
-      cluster: cluster,
-      cpu: 256, // Default is 256
-      desiredCount: 1, // Default is 1
-      taskImageOptions: { image: ecs.ContainerImage.fromEcrRepository(repo, <string>process.env.ECR_OIDC_IMAGE_TAG) },
-      memoryLimitMiB: 512, // Default is 512
-      publicLoadBalancer: true, // Default is false
-      redirectHTTP: true,
-      listenerPort: 443,
-      protocol: alb.ApplicationProtocol.HTTPS,
-      certificate: acm.Certificate.fromCertificateArn(this, "ALB-Certificate", <string>process.env.ACM_CERTIFICATE_ARN),
-      domainName: process.env.R53_DOMAIN_NAME,
-      domainZone: route53.HostedZone.fromHostedZoneAttributes(this, "myZone", { zoneName: <string>process.env.R53_ZONE_NAME, hostedZoneId: <string>process.env.R53_HOSTED_ZONE_ID })
-    });
-    oidc_service.targetGroup.configureHealthCheck({
-      path: '/.well-known/openid-configuration',
-      port: "80",
-      interval: Duration.seconds(10),
-      healthyThresholdCount: 2
-    });
-
-    // ------ END OF OPENID CONNECT PROVIDER CONFIGURATION 
-
     // ------ API GATEWAY CONFIGURATION
 
     // API Gateway Definition
@@ -62,7 +24,7 @@ export class OpenBankingAuthStack extends cdk.Stack {
       description: "This API exposes Open Banking services."
     });
 
-    const OIDC_JWKS_ENDPOINT = `https://${process.env.R53_DOMAIN_NAME}${process.env.JWKS_URI}`
+    const OIDC_JWKS_ENDPOINT = `${process.env.R53_DOMAIN_NAME}${process.env.JWKS_URI}`
 
     // Lambda Authorizer
     const LambdaAuthorizeRole = new Role(this, 'LambdaAuthorizerRole', {
@@ -86,7 +48,6 @@ export class OpenBankingAuthStack extends cdk.Stack {
         SM_JWKS_SECRET_NAME: <string>process.env.SM_JWKS_SECRET_NAME
       }
     });
-    jwtAuthorizer.node.addDependency(oidc_service);
 
     // Lambda Backend Integration
     const backendHandler = new lambda.Function(this, "BackendHandler", {
@@ -135,7 +96,6 @@ export class OpenBankingAuthStack extends cdk.Stack {
         SM_JWKS_SECRET_NAME: <string>process.env.SM_JWKS_SECRET_NAME
       }
     });
-    customSecretsManagerLambda.node.addDependency(oidc_service);
 
     new CustomResource(this, 'JwksSecretsManager', {
       serviceToken: customSecretsManagerLambda.functionArn
