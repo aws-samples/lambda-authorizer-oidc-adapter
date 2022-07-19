@@ -1,120 +1,92 @@
-# Lambda Authorizer - OIDC Adapter
-
-## Overview
-
-This repo intends to create an API Gateway with a Lambda Authorizer that uses an external OIDC Provider. 
+# Lambda Authorizer Oidc Adapter
 
 
 
-*** 
+## Getting started
 
-## Prerequisites:
+To make it easy for you to get started with GitLab, here's a list of recommended next steps.
 
-- [awscli](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html)
-- [Pre configured AWS credentials](https://docs.aws.amazon.com/amazonswf/latest/developerguide/RubyFlowOptions.html)
-- [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
-- [cdk](https://docs.aws.amazon.com/cdk/latest/guide/getting_started.html)
+Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
 
-## 1. How to deploy
+## Add your files
 
-### 1.2. Configure Environment Variables
+- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
+- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
 
-- Open the file .env _(note that is an hidden file)_
-- You will have to configure 3 items here:
-
-| Key   |      Value      |      Description      |
-|----------|:-------------:|-----------------------:|
-| R53_DOMAIN_NAME | https://your-oidc.com.br/auth | Your OIDC URL |
-| JWKS_URI | /openid/name/token | The URL provided by your OIDC that generate a signature. |
-| SM_JWKS_SECRET_NAME |  dev/Auth/OIDC  | Name for your Secret Name that will be created in Secrets Manager |
-
-### 1.3. Deploy the CDK Stack
-
-```sh
-cd <REPO_NAME>/resources/lambda
-npm install
-cd ../..
-npm install
-cdk deploy
 ```
-### How it Works
-
-There is an implicit flow, that generates the OIDC Signature in deploy time. 
-
-When you run CDK, a AWS Lambda calls your JWKS_URI to save the OIDC Signature in the Secrets Manager. 
-
-That signature is used to validate the token signature during all API calls. 
-
-![secrets](secrets-architecture.png)
-
-
-# Architecture
-
-![arquitetura](architecture.png)
-
-### Step by Step 
-
-1. User accesses the OIDC provider to Authenticate (AuthN) and enter its credentials.
-2. OIDC provider issues a JWT-based access and/or ID token to client.
-3. User invokes a protected API resource passing the access/ID bearer token to the `Authorization` header.
-4. API Gateway uses a Lambda Authorizer to decode and verify the JWT token and its scopes to allow/deny access to the protected resource.
-5. Lambda Authorizer query the JWKS key for verifying the token signature stored in AWS Secrets Manager
-6. Lambda Authorizer uses the retrieved key from AWS Secrets Manager to verify the token signature against the OIDC provider. 
-7. In case the token is successfully verified and contains the proper scopes to access the API resource, Lambda Authorizer returns a temporary IAM credential allowing API Gateway to invoke the protected resource. 
-8. API Gateway invokes the protected resource and performs an action on behalf of the user.
-
-## 2. Test Your Application 
-
-To test the solution, we are going to use the Keycloak as OIDC Provider. 
-To Deploy Keycloak independly in your AWS Account, follow: <<repo>>
-
-### 2.1. Terminal - Invoke your API
-First, use terminal to run the following command to invoke your API without any JWT token:
-
-```sh
-curl -X GET https://<API-ID>.execute-api.<REGION>.amazonaws.com/prod/
-```
-You should get the following error message with a `401 HTTP Status Code`:
-
-`"message": "Unauthorized"`
-
-Or the following error message with a `403 HTTP Status Code` in case you pass an invalid `Bearer` token:
-
-`"Message": "User is not authorized to access this resource with an explicit deny"`
-
-### 2.2.  Generate your JWT Token
-*Remember, we are using Keycloak as OIDC Provider*
-
-```sh
-token=$(curl -X POST 'https://<<YOUR-DOMAIN>>/auth/realms/master/protocol/openid-connect/token' -H "Content-Type: application/x-www-form-urlencoded" -d "username=keycloak" -d "password=<<YOUR-PASSWORD>>" -d "grant_type=password" -d 'client_id=admin-cli' |jq -r '.access_token') 
+cd existing_repo
+git remote add origin https://gitlab.aws.dev/open-banking-brazil/lambda-authorizer-oidc-adapter.git
+git branch -M main
+git push -uf origin main
 ```
 
-### 2.3. Terminal - Invoke your API passing your JWT as Authorization Header
+## Integrate with your tools
 
-Let's try once again, this time including the `Authorization` header in our request together with our newly issued JWT token.
+- [ ] [Set up project integrations](https://gitlab.aws.dev/open-banking-brazil/lambda-authorizer-oidc-adapter/-/settings/integrations)
 
-```sh
-curl -X GET https://<API-ID>.execute-api.<REGION>.amazonaws.com/prod/ -H "Authorization: Bearer ${token}"
-```
+## Collaborate with your team
 
-Now, you should get the following message with a `200 HTTP Status Code`:
+- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
+- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
+- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
+- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
+- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
 
-`Hello From Authorized API`
+## Test and Deploy
 
-Congratulations! You have now configured your API Gateway to authorize access based on JWT-based tokens issued by an external FAPI-compliant OIDC Provider.
+Use the built-in continuous integration in GitLab.
 
-## 3. Cleaning UP
+- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
+- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
+- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
+- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
+- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
 
-Run the following command:
+***
 
-```sh
-cdk destroy
-```
+# Editing this README
 
-## 4. Security
+When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
 
-See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more information.
+## Suggestions for a good README
+Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
 
-## 5. License
+## Name
+Choose a self-explaining name for your project.
 
-This library is licensed under the MIT-0 License. See the LICENSE file.
+## Description
+Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+
+## Badges
+On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+
+## Visuals
+Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+
+## Installation
+Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+
+## Usage
+Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+
+## Support
+Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+
+## Roadmap
+If you have ideas for releases in the future, it is a good idea to list them in the README.
+
+## Contributing
+State if you are open to contributions and what your requirements are for accepting them.
+
+For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+
+You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+
+## Authors and acknowledgment
+Show your appreciation to those who have contributed to the project.
+
+## License
+For open source projects, say how it is licensed.
+
+## Project status
+If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
