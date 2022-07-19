@@ -14,11 +14,12 @@ This repo intends to create an API Gateway with a Lambda Authorizer that uses an
 - [Pre configured AWS credentials](https://docs.aws.amazon.com/amazonswf/latest/developerguide/RubyFlowOptions.html)
 - [npm](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm)
 - [cdk](https://docs.aws.amazon.com/cdk/latest/guide/getting_started.html)
+
 ## 1. How to deploy
 
 ### 1.2. Configure Environment Variables
 
-- Open the file .env (note that is an oculted file)
+- Open the file .env _(note that is an hidden file)_
 - You will have to configure 3 items here:
 
 | Key   |      Value      |      Description      |
