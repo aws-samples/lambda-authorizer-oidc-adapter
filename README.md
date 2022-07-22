@@ -66,7 +66,7 @@ That signature is used to validate the token signature during all API calls.
 ## 2. Test Your Application 
 
 To test the solution, we are going to use the Keycloak as OIDC Provider. 
-To Deploy Keycloak independly in your AWS Account, follow: <<repo>>
+To Deploy Keycloak independly in your AWS Account, follow: [oidc-provider-keycloak](https://github.com/aws-samples/oidc-provider-keycloak)
 
 ### 2.1. Terminal - Invoke your API
 First, use terminal to run the following command to invoke your API without any JWT token:
